@@ -36,6 +36,15 @@ async function run() {
             const result = await cursor.toArray([]);
             res.send(result);
         })
+        app.get("/myToys/:text", async (req, res) => {
+            console.log(req.params.text);
+            if (req.params.text == "regular" || req.params.text == "sports" || req.params.text == "Truck") {
+                const cursor = toysCollection.find({ category: req.params.text });
+                const result = await cursor.toArray([]);
+                res.send(result);
+                console.log(result);
+            }
+        })
 
         app.post("/addAToy", async (req, res) => {
             const toys = req.body;
