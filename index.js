@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 const app = express();
 const port = process.env.port || 5000;
@@ -31,15 +31,23 @@ async function run() {
         const database = client.db("toysDB")
         const toysCollection = database.collection("toys");
 
-        // app.get("/myToys", async (req, res) => {
-        //     const cursor = toysCollection.find();
-        //     const result = await cursor.toArray([]);
-        //     res.send(result);
-        // })
+        app.get("/allToys", async (req, res) => {
+            const result = await toysCollection.find().limit(20).toArray([]);
+            res.send(result);
+        })
+
         app.get("/myToys", async (req, res) => {
+            const email = req.query.email;
+            console.log(email)
+            const result = await toysCollection.find({ email: email }).toArray();
+            res.send(result);
+        })
+
+
+        app.get("/categorysToys", async (req, res) => {
             const activeCategory = req.query.activeCategory;
             console.log(activeCategory);
-            
+
             if (activeCategory == "regular" || activeCategory == "sports" || activeCategory == "Truck") {
                 const cursor = toysCollection.find({ category: activeCategory });
                 const result = await cursor.toArray([]);
@@ -57,9 +65,50 @@ async function run() {
             console.log(toys);
             res.send(result)
         })
+        app.get('/myToys/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const options = {
+                projection: {
+                    quantity: 1,
+                    price: 1,
+                    description: 1,
+                    photo: 1
+                }
+
+            }
+            const result = await toysCollection.findOne(query, options);
+            console.log(result)
+            res.send(result);
+
+        })
+
+        app.delete('/myToys/:id', async (req, res) => {
+            const id = req.params.id;
+            console.log('plz delete from database', id);
+            const query = { _id: new ObjectId(id) }
+            const result = await toysCollection.deleteOne(query);
+            res.send(result);
+
+        })
 
 
+        app.patch("/updateData/:id", async (req, res) => {
+            const data = req.body;
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const updatedDoc = {
+                $set: {
+                    price: data.price,
+                    quantity: data.quantity,
+                    description: data.description
+                }
+            }
+          
+            const result = await toysCollection.updateOne(query,updatedDoc);
+            res.send(result)
 
+        })
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
