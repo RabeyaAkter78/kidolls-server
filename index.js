@@ -31,15 +31,17 @@ async function run() {
         const database = client.db("toysDB")
         const toysCollection = database.collection("toys");
 
+        // app.get("/myToys", async (req, res) => {
+        //     const cursor = toysCollection.find();
+        //     const result = await cursor.toArray([]);
+        //     res.send(result);
+        // })
         app.get("/myToys", async (req, res) => {
-            const cursor = toysCollection.find();
-            const result = await cursor.toArray([]);
-            res.send(result);
-        })
-        app.get("/myToys/:text", async (req, res) => {
-            console.log(req.params.text);
-            if (req.params.text == "regular" || req.params.text == "sports" || req.params.text == "Truck") {
-                const cursor = toysCollection.find({ category: req.params.text });
+            const activeCategory = req.query.activeCategory;
+            console.log(activeCategory);
+            
+            if (activeCategory == "regular" || activeCategory == "sports" || activeCategory == "Truck") {
+                const cursor = toysCollection.find({ category: activeCategory });
                 const result = await cursor.toArray([]);
                 res.send(result);
                 console.log(result);
