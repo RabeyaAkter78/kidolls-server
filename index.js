@@ -61,11 +61,14 @@ async function run() {
 
         app.get("/myToys", async (req, res) => {
             const email = req.query.email;
-            console.log(email)
-            const result = await toysCollection.find({ email: email })
-                .sort({ createdAt: -1 })
-                .toArray()
-                ;
+            const isTrue = req.query.isSort;
+            console.log(email,isTrue)
+            if (isTrue === "true") {
+                const result = await toysCollection.find({ email: email }).sort({ createdAt: -1 }).toArray();
+                res.send(result);
+                return;
+            }
+            const result = await toysCollection.find({ email: email }).sort({ createdAt: 1 }).toArray();
             res.send(result);
         })
 
