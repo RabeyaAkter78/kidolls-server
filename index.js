@@ -51,16 +51,6 @@ async function run() {
 
         // indexing end
 
-
-
-
-
-
-
-
-
-
-
         app.get("/allToys", async (req, res) => {
             const result = await toysCollection.find()
                 .limit(20)
@@ -68,15 +58,6 @@ async function run() {
                 .toArray([]);
             res.send(result);
         })
-
-
-        // app.get('/singleToyDetails/:id', async (req, res) => {
-        //     const id = req.params.id;
-        //     const result = await toysCollection.findOne();
-        //     res.send(result);
-
-        // })
-
 
         app.get("/myToys", async (req, res) => {
             const email = req.query.email;
@@ -112,13 +93,21 @@ async function run() {
                     description: 1,
                     photo: 1
                 }
-
             }
             const result = await toysCollection.findOne(query, options);
             console.log(result)
             res.send(result);
-
         })
+
+
+        app.get('/allToyDetails/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await toysCollection.findOne(query);
+            res.send(result)
+        })
+
+
 
         app.post("/addAToy", async (req, res) => {
             const toys = req.body;
